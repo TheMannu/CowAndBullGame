@@ -1,0 +1,95 @@
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Random;
+import java.util.Scanner;
+import java.util.Set;
+
+public class CowBullGame {
+
+    // Returns a list of digits of a number
+    public static List<Integer> getDigits(int num) {
+        List<Integer> digits = new ArrayList<>();
+        while (num > 0) {
+            digits.add(num % 10);
+            num /= 10;
+        }
+        return digits;
+    }
+
+    // Returns true if number has no duplicate digits, otherwise false
+    public static boolean noDuplicates(int num) {
+        List<Integer> numList = getDigits(num);
+        Set<Integer> uniqueDigits = new HashSet<>(numList);
+        return numList.size() == uniqueDigits.size();
+    }
+
+    // Generates a 4-digit number with no repeated digits
+    public static int generateNum() {
+        Random rand = new Random();
+        while (true) {
+            int num = rand.nextInt(9000) + 1000; // Generate a number between 1000 and 9999
+            if (noDuplicates(num)) {
+                return num;
+            }
+        }
+    }
+
+    // Returns an array with the number of bulls and cows
+    public static int[] numOfBullsCows(int num, int guess) {
+        int[] bullCow = {0, 0};
+        List<Integer> numList = getDigits(num);
+        List<Integer> guessList = getDigits(guess);
+
+        for (int i = 0; i < 4; i++) {
+            int digit = guessList.get(i);
+            if (numList.contains(digit)) {
+                if (digit == numList.get(i)) {
+                    bullCow[0]++; // Bull: digit is in the correct position
+                } else {
+                    bullCow[1]++; // Cow: digit is in the wrong position
+                }
+            }
+        }
+        return bullCow;
+    }
+
+    public static void main(String[] args) {
+        int num = generateNum();
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.print("Enter number of tries: ");
+        int tries = scanner.nextInt();
+
+        while (tries > 0) {
+            System.out.print("Enter your guess: ");
+            int guess = scanner.nextInt();
+
+            if (!noDuplicates(guess)) {
+                System.out.println("Number should not have repeated digits. Try again.");
+                continue;
+            }
+
+            if (guess < 1000 || guess > 9999) {
+                System.out.println("Enter a 4-digit number only. Try again.");
+                continue;
+            }
+
+            int[] bullCow = numOfBullsCows(num, guess);
+            System.out.println(bullCow[0] + " bulls, " + bullCow[1] + " cows");
+
+            tries--;
+
+            if (bullCow[0] == 4) {
+                System.out.println("You guessed right!");
+                break;
+            }
+        }
+
+        if (tries == 0) {
+            System.out.println("You ran out of tries. The number was " + num);
+        }
+
+        scanner.close();
+    }
+}
